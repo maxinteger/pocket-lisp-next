@@ -1,51 +1,50 @@
+use std::fmt::{Display, Formatter};
+
 #[derive(Debug, PartialEq, Ord, PartialOrd, Eq, Hash, Copy, Clone)]
 pub enum TokenType {
-    // Single-character tokens.
+    Init,
     LeftParen,
     RightParen,
     LeftBrace,
     RightBrace,
-    Comma,
-    Dot,
-    Minus,
-    Plus,
-    Semicolon,
-    Slash,
-    Star,
-    // One or two character tokens.
-    Bang,
-    BangEqual,
-    Equal,
-    EqualEqual,
-    Greater,
-    GreaterEqual,
-    Less,
-    LessEqual,
-    // Literals.
-    Identifier,
-    String,
-    Number,
-    // Keywords.
-    And,
-    Class,
-    Else,
-    False,
-    For,
-    Fun,
-    If,
-    Nil,
-    Or,
-    Print,
-    Return,
-    Super,
-    This,
+    LeftSquare,
+    RightSquare,
+    Dispatch,
     True,
-    Var,
-    While,
-
+    False,
+    Identifier,
+    Keyword,
+    String,
+    IntegerNumber,
+    FloatNumber,
+    FractionNumber,
     Error,
     Eof,
-    Init,
+}
+
+impl Display for TokenType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TokenType::Init => f.write_str("Init"),
+            TokenType::LeftParen => f.write_str("LeftParen"),
+            TokenType::RightParen => f.write_str("RightParen"),
+            TokenType::LeftBrace => f.write_str("LeftBrace"),
+            TokenType::RightBrace => f.write_str("RightBrace"),
+            TokenType::LeftSquare => f.write_str("LeftSquare"),
+            TokenType::RightSquare => f.write_str("RightSquare"),
+            TokenType::Dispatch => f.write_str("Dispatch"),
+            TokenType::True => f.write_str("True"),
+            TokenType::False => f.write_str("False"),
+            TokenType::Identifier => f.write_str("Identifier"),
+            TokenType::Keyword => f.write_str("Keyword"),
+            TokenType::String => f.write_str("String"),
+            TokenType::IntegerNumber => f.write_str("IntegerNumber"),
+            TokenType::FloatNumber => f.write_str("FloatNumber"),
+            TokenType::FractionNumber => f.write_str("FractionNumber"),
+            TokenType::Error => f.write_str("Error"),
+            TokenType::Eof => f.write_str("Eof"),
+        }
+    }
 }
 
 #[derive(Copy, Clone)]
