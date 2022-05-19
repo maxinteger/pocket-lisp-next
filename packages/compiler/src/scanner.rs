@@ -1,3 +1,4 @@
+use crate::token::TokenType::String;
 use crate::token::{Token, TokenType};
 
 pub struct Scanner<'a> {
@@ -12,7 +13,7 @@ pub struct Scanner<'a> {
 fn is_symbol(ch: char) -> bool {
     matches!(
         ch,
-        '=' | '+' | '-' | '*' | '/' | '\\' | '&' | '%' | '$' | '_' | '!' | '<' | '>' | '?'
+        '=' | '+' | '-' | '*' | '/' | '\\' | '&' | '%' | '$' | '_' | '!' | '<' | '>' | '?' | '\''
     )
 }
 
@@ -42,7 +43,7 @@ impl<'a> Scanner<'a> {
 
         return match c {
             ':' => self.keyword(),
-            c if c.is_digit(10) => self.number(),
+            c if c.is_digit(10) || c == '-' && self.peek().is_digit(10) => self.number(),
             c if c.is_ascii_alphanumeric() || is_symbol(c) => self.identifier(),
             '"' => self.string(),
             '(' => self.make_token(TokenType::LeftParen),
@@ -53,7 +54,10 @@ impl<'a> Scanner<'a> {
             ']' => self.make_token(TokenType::RightSquare),
             '#' => self.make_token(TokenType::Dispatch),
 
-            _ => self.error_token("Unexpected character."),
+            _ => {
+                println!("SCANNER {}", c);
+                self.error_token("Unexpected character.")
+            }
         };
     }
 
@@ -129,6 +133,7 @@ impl<'a> Scanner<'a> {
     }
 
     fn string(&mut self) -> Token<'a> {
+        self.start = self.current;
         while !self.is_at_end() && self.peek() != '"' {
             // todo add string escape?
             if self.peek() == '\n' {
@@ -139,8 +144,9 @@ impl<'a> Scanner<'a> {
         if self.is_at_end() {
             self.error_token("Unterminated string")
         } else {
+            let token = self.make_token(TokenType::String);
             self.advance();
-            self.make_token(TokenType::String)
+            token
         }
     }
 
@@ -256,7 +262,7 @@ mod tests {
     fn scan_identifier() {
         let ids = vec![
             "x1", "_", "_a", "hello", "=", "+", "-", "*", "/", "\\", "&", "%", "$", "_", "!", "<",
-            ">", "?",
+            ">", "?", "'",
         ];
         let tokens: Vec<TokenType> = std::iter::repeat(TokenType::Identifier)
             .take(ids.len())
@@ -319,8 +325,10 @@ mod tests {
 
     #[test]
     fn scan_number() {
-        let nums = vec!["0", "42", "42.5", "1/3"];
+        let nums = vec!["-42", "-1.5", "0", "42", "42.5", "1/3"];
         let tokens = vec![
+            TokenType::IntegerNumber,
+            TokenType::FloatNumber,
             TokenType::IntegerNumber,
             TokenType::IntegerNumber,
             TokenType::FloatNumber,
@@ -341,7 +349,12 @@ mod tests {
         let source = cases.join(" ");
         let mut scanner = Scanner::new(source.as_str());
 
-        test_tokens(&mut scanner, cases, tokens);
+        for i in 0..cases.len() {
+            let result = scanner.scan_token();
+            let case = *cases.get(i).unwrap();
+            assert_eq!(result.kind, *tokens.get(i).unwrap());
+            assert_eq!(*result.src, case[1..case.len() - 1]); // remove quotes
+        }
 
         let result = scanner.scan_token();
         assert_eq!(result.kind, TokenType::Eof);
@@ -368,6 +381,7 @@ mod tests {
 
         let result = scanner.scan_token();
         assert_eq!(result.kind, TokenType::String);
+        assert_eq!(result.src, "multi\nline\nstring\n");
         assert_eq!(result.line, 4);
 
         let result = scanner.scan_token();

@@ -24,26 +24,26 @@ pub enum TokenType {
 
 impl Display for TokenType {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            TokenType::Init => f.write_str("Init"),
-            TokenType::LeftParen => f.write_str("LeftParen"),
-            TokenType::RightParen => f.write_str("RightParen"),
-            TokenType::LeftBrace => f.write_str("LeftBrace"),
-            TokenType::RightBrace => f.write_str("RightBrace"),
-            TokenType::LeftSquare => f.write_str("LeftSquare"),
-            TokenType::RightSquare => f.write_str("RightSquare"),
-            TokenType::Dispatch => f.write_str("Dispatch"),
-            TokenType::True => f.write_str("True"),
-            TokenType::False => f.write_str("False"),
-            TokenType::Identifier => f.write_str("Identifier"),
-            TokenType::Keyword => f.write_str("Keyword"),
-            TokenType::String => f.write_str("String"),
-            TokenType::IntegerNumber => f.write_str("IntegerNumber"),
-            TokenType::FloatNumber => f.write_str("FloatNumber"),
-            TokenType::FractionNumber => f.write_str("FractionNumber"),
-            TokenType::Error => f.write_str("Error"),
-            TokenType::Eof => f.write_str("Eof"),
-        }
+        f.write_str(match self {
+            TokenType::Init => "Init",
+            TokenType::LeftParen => "LeftParen",
+            TokenType::RightParen => "RightParen",
+            TokenType::LeftBrace => "LeftBrace",
+            TokenType::RightBrace => "RightBrace",
+            TokenType::LeftSquare => "LeftSquare",
+            TokenType::RightSquare => "RightSquare",
+            TokenType::Dispatch => "Dispatch",
+            TokenType::True => "True",
+            TokenType::False => "False",
+            TokenType::Identifier => "Identifier",
+            TokenType::Keyword => "Keyword",
+            TokenType::String => "String",
+            TokenType::IntegerNumber => "IntegerNumber",
+            TokenType::FloatNumber => "FloatNumber",
+            TokenType::FractionNumber => "FractionNumber",
+            TokenType::Error => "Error",
+            TokenType::Eof => "Eof",
+        })
     }
 }
 
@@ -74,5 +74,15 @@ impl Default for Token<'static> {
             src: "",
             line: 0,
         }
+    }
+}
+
+impl Display for TokenType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(
+            "[{}] \"{}\" {}:{}",
+            self.kind,
+            self.src, self.line, self.start
+        )
     }
 }
